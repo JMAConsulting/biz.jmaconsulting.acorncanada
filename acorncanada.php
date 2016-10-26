@@ -107,15 +107,37 @@ function acorncanada_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _acorncanada_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
+/**
+ * Implementation of hook_civicrm_buildForm
+ *
+ */
 function acorncanada_civicrm_buildForm($formName, &$form) {
   if ($formName == "CRM_Contact_Form_Contact") {
     $form->addSelect('membership_type_id', array('options' => CRM_Member_PseudoConstant::membershipType()));
     CRM_Core_Region::instance('page-body')->add(array(
       'template' => 'CRM/Acorncanada/Contact.tpl',
     ));
+    if ($form->_contactId) {
+      // Set defaults.
+      $result = civicrm_api3('Membership', 'get', array(
+        'sequential' => 1,
+        'return' => array("membership_type_id"),
+        'contact_id' => $form->_contactId,
+        'status_id' => array('IN' => array("New", "Current")),
+        'active_only' => 1,
+      ));
+      if ($result['count'] > 0) {
+        $type = reset($result['values']);
+        $form->setDefaults(array('membership_type_id' => $type['membership_type_id']));
+      }
+    }
   }
 }
 
+/**
+ * Implementation of hook_civicrm_postProcess
+ *
+ */
 function acorncanada_civicrm_postProcess($formName, &$form) {
   if ($formName == "CRM_Contact_Form_Contact") {
     if ($memType = CRM_Utils_Array::value('membership_type_id', $form->_submitValues) && $form->_contactId) {
