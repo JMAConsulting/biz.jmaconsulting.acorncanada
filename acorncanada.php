@@ -106,3 +106,25 @@ function acorncanada_civicrm_caseTypes(&$caseTypes) {
 function acorncanada_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _acorncanada_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
+
+function acorncanada_civicrm_buildForm($formName, &$form) {
+  if ($formName == "CRM_Contact_Form_Contact") {
+    $form->addSelect('membership_type_id', array('options' => CRM_Member_PseudoConstant::membershipType()));
+    CRM_Core_Region::instance('page-body')->add(array(
+      'template' => 'CRM/Acorncanada/Contact.tpl',
+    ));
+  }
+}
+
+function acorncanada_civicrm_postProcess($formName, &$form) {
+  if ($formName == "CRM_Contact_Form_Contact") {
+    if ($memType = CRM_Utils_Array::value('membership_type_id', $form->_submitValues) && $form->_contactId) {
+      civicrm_api3('Membership', 'create', array(
+        'sequential' => 1,
+        'membership_type_id' => $memType,
+        'contact_id' => $form->_contactId,
+        'status_id' => "Current",
+      ));
+    }
+  }
+}
