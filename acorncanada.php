@@ -112,11 +112,15 @@ function acorncanada_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  *
  */
 function acorncanada_civicrm_buildForm($formName, &$form) {
-  if ($formName == "CRM_Contact_Form_Contact") {
-    $form->addSelect('membership_type_id', array('options' => CRM_Member_PseudoConstant::membershipType()));
+  if ($formName == "CRM_Contact_Form_Contact" || $formName == "CRM_Report_Form_Contribute_exportContact") {
     CRM_Core_Region::instance('page-body')->add(array(
       'template' => 'CRM/Acorncanada/Contact.tpl',
     ));
+    if ($formName == "CRM_Report_Form_Contribute_exportContact") {
+      $form->assign('isReport', TRUE);
+      return;
+    }
+    $form->addSelect('membership_type_id', array('options' => CRM_Member_PseudoConstant::membershipType()));
     if ($form->_contactId) {
       // Set defaults.
       $result = civicrm_api3('Membership', 'get', array(
