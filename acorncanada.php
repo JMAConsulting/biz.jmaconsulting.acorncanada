@@ -144,12 +144,13 @@ function acorncanada_civicrm_buildForm($formName, &$form) {
  */
 function acorncanada_civicrm_postProcess($formName, &$form) {
   if ($formName == "CRM_Contact_Form_Contact") {
-    if ($memType = CRM_Utils_Array::value('membership_type_id', $form->_submitValues) && $form->_contactId) {
+    $memType = CRM_Utils_Array::value('membership_type_id', $form->_submitValues, NULL);
+    if ($memType && $form->_contactId) {
       try{
         civicrm_api3('Membership', 'create', array(
           'sequential' => 1,
-          'membership_type_id' => $memType,
-          'contact_id' => $form->_contactId,
+          'membership_type_id' => (int)$memType,
+          'contact_id' => (int)$form->_contactId,
           'status_id' => "Current",
         ));
       }
