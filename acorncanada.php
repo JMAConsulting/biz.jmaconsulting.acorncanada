@@ -136,6 +136,13 @@ function acorncanada_civicrm_buildForm($formName, &$form) {
       }
     }
   }
+  if ($formName == 'CRM_Contribute_Form_ContributionView' && ($contributionID = CRM_Utils_Array::value('id', $_GET))) {
+    CRM_Core_Resources::singleton()->addScript(
+       "CRM.$(function($) {
+         $('.crm-contribution-view-form-block table > tbody > tr').eq(5).after('<tr><td class=\"label\">Amount Label</td><td class=\"bold\">" . civicrm_api3('Contribution', 'getvalue', ['id' => $contributionID, 'return' => 'amount_level']) . "</td></tr>');
+       });"
+     );
+  }
 }
 
 /**
@@ -164,6 +171,24 @@ function acorncanada_civicrm_postProcess($formName, &$form) {
           'error_code' => $errorCode,
           'error_data' => $errorData,
         );
+      }
+    }
+  }
+}
+
+function acorncanada_civicrm_searchColumns($contextName, &$columnHeaders, &$rows, $form) {
+  if ($contextName == 'contribution') {
+    foreach ($columnHeaders as $index => &$column) {
+      if (!empty($column['field_name']) && $column['field_name'] == 'product_name') {
+        $columnHeaders[$index] = array_merge($column, array(
+          'name' => ts('Amount label'),
+          'field_name' => 'amount_level',
+        ));
+
+        foreach ($rows as $key => $row) {
+          $rows[$key]['amount_level'] = civicrm_api3('Contribution', 'getvalue', ['id' => $row['contribution_id'], 'return' => 'amount_level']);
+        }
+        break;
       }
     }
   }
