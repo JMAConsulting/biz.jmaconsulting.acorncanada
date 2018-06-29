@@ -139,7 +139,7 @@ function acorncanada_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Contribute_Form_ContributionView' && ($contributionID = CRM_Utils_Array::value('id', $_GET))) {
     CRM_Core_Resources::singleton()->addScript(
        "CRM.$(function($) {
-         $('.crm-contribution-view-form-block table > tbody > tr').eq(5).after('<tr><td class=\"label\">Amount Label</td><td class=\"bold\">" . civicrm_api3('Contribution', 'getvalue', ['id' => $contributionID, 'return' => 'amount_level']) . "</td></tr>');
+         $('.crm-contribution-view-form-block table > tbody > tr').eq(5).after('<tr><td class=\"label\">Amount Label</td><td>" . civicrm_api3('Contribution', 'getvalue', ['id' => $contributionID, 'return' => 'amount_level']) . "</td></tr>');
        });"
      );
   }
@@ -184,6 +184,7 @@ function acorncanada_civicrm_searchColumns($contextName, &$columnHeaders, &$rows
           'name' => ts('Amount label'),
           'field_name' => 'amount_level',
         ));
+        unset($columnHeaders[$index]['sort']);
 
         foreach ($rows as $key => $row) {
           $rows[$key]['amount_level'] = civicrm_api3('Contribution', 'getvalue', ['id' => $row['contribution_id'], 'return' => 'amount_level']);
