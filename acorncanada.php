@@ -194,3 +194,9 @@ function acorncanada_civicrm_searchColumns($contextName, &$columnHeaders, &$rows
     }
   }
 }
+
+function acorncanada_civicrm_pre($op, $entity, $id, &$params) {
+  if ($op == 'edit' && $entity == 'Mailing' && $id == 4430) {
+    $params['_skip_evil_bao_auto_recipients_'] = TRUE;
+  }
+}
